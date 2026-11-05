@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ECAIR - Review par lot (prototype)</title>
+<meta name="description" content="Prototype cliquable du business case ECAIR : review par lot pour le Pro et pour les Ops. Données fictives.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F5F6F8; --surface:#fff; --border:#E4E7EC; --text:#101828; --muted:#667085;
+  --primary:#1F4FD8; --primary-bg:#EEF2FF; --green:#067647; --green-bg:#E6F6EE;
+  --red:#B42318; --red-bg:#FEECEB; --blue:#3538CD; --blue-bg:#ECEEFE;
+  --gray:#475467; --gray-bg:#F2F4F7; --amber:#B54708; --amber-bg:#FEF0C7;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.45}
+button{font:inherit;cursor:pointer}
+.demo{position:sticky;top:0;z-index:30;background:#101828;color:#fff;display:flex;align-items:center;gap:16px;padding:8px 16px;flex-wrap:wrap}
+.demo .t{font-size:12px;color:#D0D5DD;flex:1;min-width:220px}
+.seg{display:inline-flex;background:#344054;border-radius:8px;padding:3px}
+.seg button{border:0;background:transparent;color:#D0D5DD;padding:5px 14px;border-radius:6px;font-weight:500;font-size:13px}
+.seg button.on{background:#fff;color:#101828}
+.demo .ghost{background:transparent;border:1px solid #475467;color:#fff;border-radius:8px;padding:5px 12px;font-size:12px}
+.demo .ghost:hover{background:#344054}
+.app{display:flex;min-height:calc(100vh - 46px)}
+.side{width:240px;flex:none;background:var(--surface);border-right:1px solid var(--border);padding:20px 16px;display:flex;flex-direction:column;gap:2px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;margin-bottom:18px}
+.logo i{width:28px;height:28px;border-radius:8px;background:var(--primary);color:#fff;display:grid;place-items:center;font-style:normal;font-size:15px;font-weight:700}
+.nav{display:flex;align-items:center;padding:8px 12px;border-radius:8px;color:var(--gray);border:0;background:none;text-align:left;width:100%}
+.nav.on{background:var(--primary-bg);color:var(--primary);font-weight:500}
+.nav.dis{opacity:.55;cursor:default}
+.nav .n{margin-left:auto;font-size:12px;font-weight:500}
+.nav-l{font-size:11px;font-weight:600;color:var(--muted);padding:14px 12px 6px}
+.side .sp{flex:1}
+.stat{font-size:12px;color:var(--muted);padding:10px 12px;border-top:1px solid var(--border);margin-top:8px}
+.main{flex:1;padding:28px 32px;min-width:0}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:12px}
+.crumb a{color:var(--muted);cursor:pointer;text-decoration:none}
+.crumb a:hover{text-decoration:underline}
+h1{font-size:26px;margin:0 0 6px;font-weight:600}
+h2{font-size:15px;margin:0;font-weight:600}
+.sub{color:var(--muted)}
+.tabs{display:flex;gap:28px;border-bottom:1px solid var(--border);margin:18px 0 20px}
+.tab{padding:10px 0;color:var(--gray);border-bottom:2px solid transparent;opacity:.7}
+.tab.on{color:var(--primary);font-weight:600;border-color:var(--primary);opacity:1}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 328px;gap:28px;align-items:start}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.card.pc{cursor:pointer}
+.card.pc:hover{border-color:#B8C4F5}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.grow{flex:1}
+.lbl{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.02em;margin-top:4px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap}
+.b-ok{background:var(--green-bg);color:var(--green)}
+.b-todo{background:var(--red-bg);color:var(--red)}
+.b-rev{background:var(--blue-bg);color:var(--blue)}
+.b-wait{background:var(--gray-bg);color:var(--gray)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--border);border-radius:999px;font-size:12px;font-weight:500;background:#fff}
+.chip i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.tag{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:500}
+.t-contra{background:var(--red-bg);color:var(--red)}
+.t-juge{background:var(--blue-bg);color:var(--blue)}
+.t-ecart{background:var(--gray-bg);color:var(--gray)}
+.t-revue{background:var(--amber-bg);color:var(--amber)}
+.t-audit{background:var(--green-bg);color:var(--green)}
+.cmp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.cmp div{border-radius:8px;padding:10px 12px;background:var(--gray-bg)}
+.cmp small{display:block;font-size:12px;color:var(--muted)}
+.cmp b{font-weight:500}
+.cmp .bad{background:var(--red-bg)}
+.cmp .bad small,.cmp .bad b{color:var(--red)}
+.btn{border:1px solid #D0D5DD;background:#fff;color:var(--text);border-radius:8px;padding:9px 16px;font-weight:500}
+.btn:hover{background:var(--gray-bg)}
+.btn.p{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn.p:hover{background:#1a43b8}
+.btn.l{border-color:transparent;background:none;color:var(--primary);padding:9px 8px}
+.btn.l:hover{text-decoration:underline;background:none}
+.btn[disabled]{opacity:.5;cursor:default}
+.note{font-size:13px;color:var(--muted)}
+.mini{font-size:13px;color:var(--gray);background:var(--amber-bg);border-radius:8px;padding:8px 12px}
+.spin{width:12px;height:12px;border:2px solid #98A2B3;border-top-color:transparent;border-radius:50%;display:inline-block;animation:r .8s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+.info{background:var(--blue-bg);border:0}
+.info h2{color:var(--blue)}
+.leg{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.overlay{position:fixed;inset:46px 0 0 0;background:rgba(16,24,40,.5);z-index:20}
+.drawer{position:fixed;top:46px;right:0;bottom:0;width:min(640px,100%);background:#fff;z-index:21;overflow:auto;padding:28px;display:flex;flex-direction:column;gap:20px;box-shadow:-6px 0 24px rgba(0,0,0,.18)}
+.docs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.doc{border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.prev{height:110px;border-radius:6px;background:var(--gray-bg);position:relative;overflow:hidden}
+.prev i{position:absolute;left:14px;height:6px;border-radius:3px;background:#D0D5DD}
+.prev u{position:absolute;left:14px;top:60px;width:150px;height:16px;border-radius:3px;background:#B8C4F5}
+.prev u.bad{background:#F6B1AB}
+.read{display:inline-block;border-radius:6px;padding:5px 10px;font-weight:500;font-size:13px;background:var(--gray-bg);align-self:flex-start}
+.read.bad{background:var(--red-bg);color:var(--red)}
+.opt{border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:left;background:#fff;width:100%}
+.opt.sel{border:1.5px solid var(--primary);background:var(--primary-bg)}
+.opt b{font-size:15px}
+.opt .d{font-size:13px;color:var(--muted);margin-top:4px}
+.reco{background:var(--primary);color:#fff;border-radius:999px;font-size:11px;padding:2px 8px;margin-left:8px;font-weight:500}
+.drop{margin-top:10px;border:1px dashed var(--primary);border-radius:8px;padding:16px;text-align:center;background:#fff}
+textarea{width:100%;min-height:80px;border:1px solid #D0D5DD;border-radius:8px;padding:10px;font:inherit;margin-top:10px;resize:vertical}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;color:var(--muted);text-align:left;padding:12px 14px;background:var(--gray-bg);font-weight:600}
+td{padding:14px;border-top:1px solid var(--border);vertical-align:middle}
+tr.click{cursor:pointer}
+tr.click:hover td{background:#F8FAFF}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.pill{border:1px solid var(--border);background:#fff;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500}
+.pill.on{background:var(--text);color:#fff;border-color:var(--text)}
+.pill span{color:var(--muted);margin-left:6px;font-weight:400}
+.pill.on span{color:#D0D5DD}
+.strip{background:var(--blue-bg);border-radius:10px;padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+.tl{display:flex;flex-direction:column;gap:14px}
+.ev{display:flex;gap:12px}
+.ev i{width:10px;height:10px;border-radius:50%;margin-top:6px;flex:none}
+.sep{border:0;border-top:1px solid var(--border);margin:14px 0}
+.msg{background:var(--gray-bg);border-radius:8px;padding:12px 14px;font-size:13px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#101828;color:#fff;padding:12px 18px;border-radius:10px;z-index:40;max-width:min(560px,92vw);font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.empty{text-align:center;color:var(--muted);padding:40px 20px}
+@media(max-width:1000px){.cols{grid-template-columns:1fr}.side{display:none}.main{padding:20px 16px}.docs{grid-template-columns:1fr}.cmp{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="t"><b>Prototype</b> · business case ECAIR, review par lot · données fictives</div>
+  <div class="seg" id="seg"></div>
+  <button class="ghost" data-a="sim">Simuler un nouveau dépôt du Pro</button>
+  <button class="ghost" data-a="reset">Réinitialiser</button>
+</div>
+<div id="app"></div>
+<div id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+var S, epoch = 0, toastTimer = null;
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+/* ---------- Données fictives ---------- */
+function makeState(){
+  return {
+    role:'pro', filter:'all', caseId:null, drawer:null, checking:false, decisions:0, ecartText:'', nid:100,
+    problems:{
+      name:{ id:'name', status:'todo', note:'',
+        title:'Le nom ne correspond pas entre la pièce d’identité et l’avis d’imposition',
+        concerns:['Pièce d’identité','Avis d’imposition'],
+        text:'Quand le nom d’usage diffère du nom de naissance, le livret de famille doit faire le lien entre les deux.',
+        compare:[['Dossier (saisi à la création)','DUPONT Claire',0],['Pièce d’identité','MARTIN Claire',1],['Avis d’imposition','DUPONT Claire',0]],
+        seen:[{t:'Pièce d’identité',sub:'Déposée il y a 5 semaines',read:'Nom lu : MARTIN Claire',bad:1},{t:'Avis d’imposition',sub:'Déposée il y a 5 semaines',read:'Nom lu : BENOIT Claire',bad:1}],
+        why:'Quand le nom d’usage diffère du nom de naissance, le livret de famille doit faire le lien entre les deux. Le dossier indique DUPONT Claire, la pièce d’identité indique MARTIN Claire.',
+        options:[
+          {id:'upload',label:'Ajouter le livret de famille',desc:'Il fait le lien entre les deux noms. Vous n’avez pas à refaire la pièce d’identité ni l’avis d’imposition.',reco:1,kind:'upload'},
+          {id:'replace',label:'Remplacer un document',cardLabel:'Remplacer la pièce d’identité',desc:'Si l’un des deux documents n’est pas le bon.',kind:'upload'},
+          {id:'ecart',label:'Déclarer un écart',desc:'Si le nom diffère pour une raison que vous connaissez, expliquez-la. Un Ops regarde, sans refus automatique.',kind:'ecart'}]},
+      addr:{ id:'addr', status:'todo', note:'',
+        title:'L’adresse du logement n’est pas la même sur deux documents',
+        concerns:['Avis d’imposition','Justificatif de propriété'],
+        text:'L’adresse doit être identique sur l’avis d’imposition, le justificatif de propriété et le dossier, sauf si vous déclarez l’écart.',
+        compare:[['Dossier (saisi à la création)','12 rue des Lilas, 44000 Nantes',0],['Avis d’imposition','12 rue des Lilas, 44000 Nantes',0],['Justificatif de propriété','12 rue des Acacias, 44000 Nantes',1]],
+        seen:[{t:'Justificatif de propriété',sub:'Jugé conforme il y a 5 semaines',read:'Adresse : 12 rue des Acacias',bad:1},{t:'Avis d’imposition',sub:'Redéposé il y a 12 min',read:'Adresse : 12 rue des Lilas',bad:0}],
+        why:'L’adresse du logement doit être la même sur l’avis d’imposition, le justificatif de propriété et le dossier, sauf écart déclaré par le Pro.',
+        options:[
+          {id:'upload',label:'Remplacer le justificatif de propriété',desc:'Déposez un justificatif à jour. Seuls les contrôles concernés sont relancés.',reco:1,kind:'upload'},
+          {id:'ecart',label:'Déclarer un écart',desc:'Si l’adresse diffère pour une raison que vous connaissez, expliquez-la. Un Ops regarde.',kind:'ecart'}]},
+      income:{ id:'income', status:'review', note:'',
+        title:'Les revenus déclarés sont à confirmer',
+        concerns:['Avis d’imposition'],
+        text:'Notre équipe regarde ce point. Vous n’avez rien à faire pour le moment, nous vous prévenons si une pièce est nécessaire.',
+        compare:null,
+        seen:[{t:'Avis d’imposition',sub:'Déposé il y a 12 min',read:'Revenu fiscal : à confirmer',bad:0}],
+        why:'Les revenus lus sur l’avis d’imposition sont différents de ceux saisis à la création du dossier.',
+        options:[]}
+    },
+    cases:[
+      {id:'c1',dossier:'Claire Dupont',motif:'contra',key:'addr',sub:'Avis d’imposition redéposé il y a 12 min',desc:'Nouvel avis d’imposition : l’adresse diffère du justificatif de propriété déjà validé',docs:'Avis d’imposition, Justificatif de propriété',since:'12 min',min:12,risk:3,
+        d:{docs:[{t:'Justificatif de propriété',sub:'Jugé conforme il y a 5 semaines',read:'Adresse : 12 rue des Acacias',bad:1},{t:'Avis d’imposition (redéposé)',sub:'Déposé il y a 12 min, pour corriger l’année',read:'Adresse : 12 rue des Lilas',bad:0}],
+        dossier:'Dossier (saisi par le Pro à la création) : 12 rue des Lilas, 44000 Nantes',
+        tl:[['Il y a 5 semaines','Justificatif de propriété jugé conforme.','#067647'],['Il y a 12 min','Avis d’imposition redéposé pour corriger l’année. Le contrôle propre au document est conforme.','#067647'],['Il y a 12 min','Contrôle entre documents : l’adresse diffère du justificatif déjà validé. Le Pro est prévenu et vous êtes alertée.','#B42318']],
+        v:[['Adresse identique sur l’avis d’imposition, le justificatif de propriété et le dossier','Agent adresses','todo','Non conforme','Avis : 12 rue des Lilas. Justificatif : 12 rue des Acacias. Dossier : 12 rue des Lilas. Aucun écart déclaré par le Pro.'],['Année de l’avis d’imposition attendue','Agent avis d’imposition','ok','Conforme','Année 2025, comme attendu.'],['Justificatif de propriété émis depuis moins de 6 mois','Agent justificatif','ok','Conforme','Émis il y a 4 mois à la signature du devis.']],
+        pro:'remplacer le justificatif de propriété.',
+        msg:'Bonjour, l’adresse du justificatif de propriété (12 rue des Acacias) ne correspond pas à celle de l’avis d’imposition et du dossier (12 rue des Lilas). Pouvez-vous envoyer un justificatif à jour ou déclarer l’écart ?'}},
+      {id:'c2',dossier:'Inès Blanc',motif:'juge',key:null,desc:'Revenus du foyer différents de ceux déclarés à la création du dossier',docs:'Avis d’imposition',since:'1 j',min:1440,risk:2,
+        d:{docs:[{t:'Avis d’imposition',sub:'Déposé il y a 12 min',read:'Revenu fiscal : 31 400 €',bad:1},{t:'Dossier (création)',sub:'Saisi par le Pro',read:'Revenus déclarés : 24 800 €',bad:0}],dossier:'Écart entre revenus lus et revenus déclarés : 6 600 €',
+        tl:[['Il y a 12 min','Avis d’imposition déposé. Contrôles du document conformes.','#067647'],['Il y a 12 min','Contrôle entre documents : revenus différents de ceux du dossier. Cas de jugement, le Pro voit « en vérification par ECAIR ».','#3538CD']],
+        v:[['Revenus cohérents avec ceux déclarés dans le dossier','Agent avis d’imposition','todo','Non conforme','Revenu fiscal de référence 31 400 €, dossier 24 800 €.']],
+        pro:'en vérification par ECAIR, rien à faire.',
+        msg:'Bonjour, les revenus de l’avis d’imposition ne correspondent pas à ceux saisis à la création du dossier. Pouvez-vous confirmer ou corriger les revenus du foyer ?'}},
+      {id:'c3',dossier:'Karim Haddad',motif:'juge',key:null,desc:'Prix du devis au-dessus de la fourchette habituelle pour ces travaux',docs:'Devis',since:'1 h',min:60,risk:3,
+        d:{docs:[{t:'Devis',sub:'Déposé il y a 1 h',read:'Total : 14 200 €',bad:1}],dossier:'Fourchette habituelle pour ces travaux : 8 000 à 11 000 €',
+        tl:[['Il y a 1 h','Devis déposé. Contrôles du document conformes.','#067647'],['Il y a 1 h','Prix au-dessus de la fourchette habituelle : cas de jugement, pas un refus.','#3538CD']],
+        v:[['Prix du devis dans la fourchette habituelle','Agent devis','todo','Non conforme','14 200 € pour une fourchette de 8 000 à 11 000 €. Peut se justifier (pose complexe).']],
+        pro:'en vérification par ECAIR, rien à faire.',msg:'Bonjour, le prix du devis est plus élevé que d’habitude pour ces travaux. Pouvez-vous préciser ce qui l’explique ?'}},
+      {id:'c4',dossier:'Sophie Lemaire',motif:'ecart',key:null,desc:'Le Pro déclare que l’adresse du logement diffère de celle de l’avis d’imposition',docs:'Avis d’imposition',since:'2 h',min:120,risk:2,
+        d:{docs:[{t:'Avis d’imposition',sub:'Déposé il y a 2 h',read:'Adresse : 4 impasse du Moulin',bad:1},{t:'Dossier (création)',sub:'Saisi par le Pro',read:'Adresse : 9 rue Haute',bad:0}],dossier:'Écart déclaré : « La cliente a déménagé en cours d’année. »',
+        tl:[['Il y a 2 h','Contradiction détectée sur l’adresse.','#B42318'],['Il y a 2 h','Le Pro déclare un écart au lieu de corriger.','#3538CD']],
+        v:[['Adresse identique sur l’avis d’imposition et le dossier','Agent adresses','todo','Non conforme','Adresses différentes. Un écart a été déclaré par le Pro.']],
+        pro:'en vérification par ECAIR, rien à faire.',msg:'Bonjour, merci pour l’explication. Pouvez-vous joindre un justificatif de déménagement ?'}},
+      {id:'c5',dossier:'Paul Girard',motif:'revue',key:null,desc:'Le Pro conteste un nom jugé différent entre deux documents',docs:'Pièce d’identité, Avis d’imposition',since:'3 h',min:180,risk:1,
+        d:{docs:[{t:'Pièce d’identité',sub:'Déposée il y a 3 semaines',read:'Nom lu : GIRARD',bad:0},{t:'Avis d’imposition',sub:'Déposé il y a 3 h',read:'Nom lu : GIRAD',bad:1}],dossier:'Le Pro pense à une erreur de lecture : « Le nom est bien GIRARD sur l’original. »',
+        tl:[['Il y a 3 h','Nom jugé différent par l’agent.','#B42318'],['Il y a 3 h','Le Pro demande une revue.','#B54708']],
+        v:[['Nom identique sur la pièce d’identité et l’avis d’imposition','Agent identité','todo','Non conforme','GIRARD contre GIRAD. Possible erreur de lecture du document.']],
+        pro:'en vérification par ECAIR, rien à faire.',msg:'Bonjour, merci pour votre retour. Pouvez-vous redéposer une copie plus nette de l’avis d’imposition ?'}},
+      {id:'c6',dossier:'Nadia Roux',motif:'contra',key:null,desc:'Le nom de naissance du livret de famille ne correspond pas à la pièce d’identité',docs:'Livret de famille, Pièce d’identité',since:'5 h',min:300,risk:2,
+        d:{docs:[{t:'Livret de famille',sub:'Déposé il y a 5 h',read:'Nom de naissance : ROUX',bad:1},{t:'Pièce d’identité',sub:'Déposée il y a 2 semaines',read:'Nom de naissance : ROUS',bad:0}],dossier:'Aucun écart déclaré par le Pro',
+        tl:[['Il y a 5 h','Livret de famille déposé, contrôles du document conformes.','#067647'],['Il y a 5 h','Contradiction avec une pièce d’identité déjà validée.','#B42318']],
+        v:[['Le livret de famille fait le lien entre les noms','Agent livret','todo','Non conforme','ROUX sur le livret, ROUS sur la pièce d’identité.']],
+        pro:'vérifier le nom de naissance.',msg:'Bonjour, le nom de naissance diffère entre le livret de famille et la pièce d’identité. Pouvez-vous vérifier ?'}},
+      {id:'c7',dossier:'Marc Fabre',motif:'audit',key:null,desc:'Lot jugé conforme, tiré au sort pour mesurer la fiabilité des agents',docs:'Lot particulier (3 documents)',since:'1 j',min:1441,risk:0,
+        d:{docs:[{t:'Pièce d’identité',sub:'Jugée conforme',read:'Nom lu : FABRE Marc',bad:0},{t:'Avis d’imposition',sub:'Jugé conforme',read:'Nom lu : FABRE Marc',bad:0}],dossier:'Aucun problème détecté par les agents',
+        tl:[['Il y a 1 j','Lot jugé conforme par les agents.','#067647'],['Il y a 1 j','Tiré au sort pour l’audit.','#3538CD']],
+        v:[['Noms identiques sur les trois documents','Agent identité','ok','Conforme','Aucun écart relevé.']],
+        pro:'conforme, rien de plus.',msg:''}}
+    ]
+  };
+}
+
+var MOTIFS={contra:['Contradiction après dépôt','t-contra'],juge:['Cas de jugement','t-juge'],ecart:['Écart déclaré par le Pro','t-ecart'],revue:['Demande de revue du Pro','t-revue'],audit:['Audit (échantillon)','t-audit']};
+var FILTERS=[['all','Tous'],['contra','Contradictions'],['juge','Cas de jugement'],['ecart','Écarts déclarés'],['revue','Demandes de revue'],['audit','Audit']];
+
+/* ---------- Petits composants ---------- */
+function badge(st,label){
+  var m={ok:['b-ok','Conforme'],todo:['b-todo','À corriger'],review:['b-rev','En vérification par ECAIR'],rechecking:['b-wait','Re-contrôle en cours'],wait:['b-wait','En attente']}[st];
+  return '<span class="badge '+m[0]+'">'+esc(label||m[1])+'</span>';
+}
+function chip(l,c){ return '<span class="chip"><i style="background:'+c+'"></i>'+esc(l)+'</span>'; }
+function stColor(st){ return st==='todo'?'#B42318':st==='review'?'#3538CD':st==='ok'?'#067647':'#667085'; }
+function preview(bad){ return '<div class="prev"><i style="top:14px;width:110px"></i><i style="top:30px;width:180px"></i><i style="top:44px;width:150px"></i><u class="'+(bad?'bad':'')+'"></u><i style="top:92px;width:140px"></i></div>'; }
+function docCard(d){ return '<div class="doc">'+preview(d.bad)+'<b>'+esc(d.t)+'</b><span class="note">'+esc(d.sub)+'</span><span class="read '+(d.bad?'bad':'')+'">'+esc(d.read)+'</span></div>'; }
+function toast(msg){
+  S.toast=msg; renderToast(); clearTimeout(toastTimer);
+  var e=epoch; toastTimer=setTimeout(function(){ if(e===epoch){ S.toast=null; renderToast(); } },4200);
+}
+function renderToast(){ document.getElementById('toast').innerHTML=S.toast?'<div class="toast" role="status">'+esc(S.toast)+'</div>':''; }
+function openCasesFor(key){ return S.cases.filter(function(c){ return c.key===key; }); }
+function removeCasesFor(key){ S.cases=S.cases.filter(function(c){ return c.key!==key; }); }
+function sortedCases(){ return S.cases.slice().sort(function(a,b){ return a.min-b.min; }); }
+
+/* ---------- Vue Pro ---------- */
+function lotBadge(){
+  var P=S.problems, todo=0, rev=0, rc=0, k;
+  for(k in P){ if(P[k].status==='todo')todo++; else if(P[k].status==='review')rev++; else if(P[k].status==='rechecking')rc++; }
+  if(S.checking) return '<span class="badge b-wait"><span class="spin"></span> Vérification du lot en cours</span>';
+  if(todo) return '<span class="badge b-todo">'+todo+' problème'+(todo>1?'s':'')+' à corriger</span>';
+  if(rc) return '<span class="badge b-wait"><span class="spin"></span> Re-contrôle en cours</span>';
+  if(rev) return '<span class="badge b-rev">En vérification par ECAIR</span>';
+  return '<span class="badge b-ok">Lot prêt</span>';
+}
+function problemCard(p){
+  var h='<div class="card pc col" style="gap:12px" data-a="open" data-k="'+p.id+'">';
+  h+='<div class="row">'+(p.status==='rechecking'?'<span class="badge b-wait"><span class="spin"></span> Re-contrôle en cours</span>':badge(p.status))+'<span class="note">Concerne</span>'+p.concerns.map(function(c){ return chip(c,stColor(p.status)); }).join('')+'</div>';
+  h+='<div style="font-size:16px;font-weight:600">'+esc(p.title)+'</div><div class="sub">'+esc(p.text)+'</div>';
+  if(p.note) h+='<div class="mini">'+esc(p.note)+'</div>';
+  if(p.compare) h+='<div class="cmp">'+p.compare.map(function(c){ return '<div class="'+(c[2]?'bad':'')+'"><small>'+esc(c[0])+'</small><b>'+esc(c[1])+'</b></div>'; }).join('')+'</div>';
+  if(p.status==='todo'){
+    h+='<div class="row">';
+    var cl=p.options.length>2;
+    p.options.forEach(function(o,i){ h+='<button class="btn '+(i===0?'p':(o.kind==='ecart'&&cl)?'l':'')+'" data-a="act" data-k="'+p.id+'" data-m="'+o.id+'">'+esc(o.cardLabel||o.label)+'</button>'; });
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+function drawerHTML(){
+  var dr=S.drawer; if(!dr) return '';
+  var p=S.problems[dr.key], h='<div class="overlay" data-a="close"></div><aside class="drawer" role="dialog" aria-label="Détail du problème">';
+  h+='<div class="row"><span class="note">Détail du problème</span><span class="grow"></span><button class="btn l" data-a="close">Fermer</button></div>';
+  h+='<div class="col" style="gap:12px"><div class="row">'+badge(p.status)+'<span class="note">Lot particulier</span></div><div style="font-size:22px;font-weight:600;line-height:1.3">'+esc(p.title)+'</div></div>';
+  h+='<div class="col" style="gap:10px"><div class="lbl">CE QUE NOUS AVONS VU</div><div class="docs">'+p.seen.map(docCard).join('')+'</div></div>';
+  h+='<div class="col" style="gap:8px"><div class="lbl">POURQUOI C’EST UN PROBLÈME</div><div>'+esc(p.why)+'</div></div>';
+  if(p.status==='todo'){
+    h+='<div class="col" style="gap:10px"><div class="lbl">CE QUE VOUS POUVEZ FAIRE</div>';
+    p.options.forEach(function(o){
+      var sel=dr.mode===o.id;
+      h+='<div class="opt '+(sel?'sel':'')+'"><button style="all:unset;cursor:pointer;display:block;width:100%" data-a="pick" data-m="'+o.id+'"><b>'+esc(o.label)+'</b>'+(o.reco?'<span class="reco">Recommandé</span>':'')+'<div class="d">'+esc(o.desc)+'</div></button>';
+      if(sel&&o.kind==='upload') h+='<div class="drop">Déposer un fichier, ou prendre une photo avec votre téléphone<div style="margin-top:10px"><button class="btn p" data-a="upload" data-k="'+p.id+'">Simuler le dépôt d’un fichier</button></div></div>';
+      if(sel&&o.kind==='ecart') h+='<textarea id="ecart" placeholder="Expliquez l’écart en une phrase">'+esc(S.ecartText)+'</textarea><div style="margin-top:10px"><button class="btn p" data-a="ecart" data-k="'+p.id+'">Envoyer à ECAIR</button></div>';
+      h+='</div>';
+    });
+    h+='</div><div class="col" style="gap:12px"><div class="note">Après votre correction, seuls les contrôles concernés sont relancés.</div><div class="row"><button class="btn l" data-a="review" data-k="'+p.id+'">Je pense que c’est une erreur</button><button class="btn" data-a="review" data-k="'+p.id+'">Demander une revue ECAIR</button></div></div>';
+  } else if(p.status==='review') h+='<div class="mini" style="background:var(--blue-bg)">Ce n’est pas un refus. Notre équipe regarde ce point : vous n’avez rien à faire pour le moment.</div>';
+  else if(p.status==='rechecking') h+='<div class="mini" style="background:var(--gray-bg)">Re-contrôle en cours. Seuls les contrôles concernés sont relancés.</div>';
+  else h+='<div class="mini" style="background:var(--green-bg)">Ce point est validé.</div>';
+  return h+'</aside>';
+}
+function proView(){
+  var P=S.problems, ks=Object.keys(P), todo=ks.filter(function(k){return P[k].status==='todo';}), rev=ks.filter(function(k){return P[k].status==='review'||P[k].status==='rechecking';}), ok=ks.filter(function(k){return P[k].status==='ok';});
+  var h='<div class="app"><nav class="side"><div class="logo"><i>E</i>Ecair</div><button class="nav dis">Notifications</button><button class="nav dis">Mon activité</button><div class="nav-l" style="font-weight:500">Mes projets</div><button class="nav on">Crédit Travaux</button><button class="nav dis">MPR Ampleur</button><button class="nav dis">MPR &amp; CEE Monogeste</button><button class="nav dis">BAR-TH-174/5</button><button class="nav dis">Projets archivés</button><div class="sp"></div><button class="nav dis">Centre d’aide</button></nav>';
+  h+='<main class="main"><div class="crumb">Mes projets / Claire Dupont</div><h1>Claire Dupont</h1><div class="sub">Panneaux solaires · 16 900 € à financer · Entreprise Soleil &amp; Co</div>';
+  h+='<div class="tabs"><span class="tab on">Tâches à réaliser</span><span class="tab">Documents</span><span class="tab">Détails du projet</span></div>';
+  h+='<div class="cols"><div class="col">';
+  if(S.checking||Object.keys(P).some(function(k){return P[k].status==='rechecking';})) h+='<div class="card row" style="padding:12px 16px">'+lotBadge()+'<span class="note">Vous pouvez continuer à déposer : la vérification tourne en arrière-plan.</span></div>';
+  if(todo.length) h+='<div class="lbl">À RÉGLER · '+todo.length+'</div>'+todo.map(function(k){return problemCard(P[k]);}).join('');
+  if(rev.length) h+='<div class="lbl">EN VÉRIFICATION PAR ECAIR · '+rev.length+'</div>'+rev.map(function(k){return problemCard(P[k]);}).join('');
+  if(!todo.length&&!rev.length) h+='<div class="card empty"><b style="color:var(--green)">Lot prêt</b><div>Tous les contrôles entre documents sont validés. Le dossier avance.</div></div>';
+  h+='<div class="card row">'+badge('ok','Conforme')+'<span style="font-weight:500;color:var(--gray)">'+(4+ok.length)+' contrôles validés'+(ok.length?' (dont '+ok.length+' corrigé'+(ok.length>1?'s':'')+' à l’instant)':'')+' ›</span></div>';
+  h+='</div><div class="col"><div class="card leg"><h2>Ce que veut dire chaque statut</h2>'+badge('ok')+'<div class="note">Ce point est validé.</div>'+badge('todo')+'<div class="note">Une action est attendue de votre part.</div>'+badge('review')+'<div class="note">Notre équipe regarde. Rien à faire pour l’instant.</div></div>';
+  h+='<div class="card info col" style="gap:10px"><h2>Des contrôles automatiques</h2><div style="font-size:13px">Ils sont réalisés par une IA et peuvent contenir des erreurs. L’équipe ECAIR peut revoir n’importe quel résultat.</div><div><button class="btn" data-a="review" data-k="">Demander une revue</button></div></div></div></div></main></div>';
+  return h+drawerHTML();
+}
+
+/* ---------- Vue Ops ---------- */
+function opsSide(){
+  return '<nav class="side"><div class="logo"><i>E</i>Ecair</div><button class="nav dis">Notifications</button><button class="nav dis">Mon activité</button><div class="nav-l">REVUE DES DOSSIERS</div><button class="nav on" data-a="oq">À examiner<span class="n">'+S.cases.length+'</span></button><button class="nav dis" title="Non dessiné">Tous les dossiers</button><button class="nav dis" title="Non dessiné">Audit qualité</button><div class="sp"></div><div class="stat">Décisions enregistrées : <b>'+S.decisions+'</b><br>Chacune mesure la fiabilité des agents.</div><button class="nav dis">Ecair Operators</button></nav>';
+}
+function queueView(){
+  var list=sortedCases().filter(function(c){ return S.filter==='all'||c.motif===S.filter; });
+  var h='<div class="app">'+opsSide()+'<main class="main"><h1>À examiner</h1><div class="sub" style="max-width:900px">Seuls les cas qui demandent un regard humain arrivent ici. Les contrôles objectifs ne passent plus par cette file.</div><div class="pills">';
+  FILTERS.forEach(function(f){ var n=f[0]==='all'?S.cases.length:S.cases.filter(function(c){return c.motif===f[0];}).length; h+='<button class="pill '+(S.filter===f[0]?'on':'')+'" data-a="filter" data-f="'+f[0]+'">'+f[1]+'<span>'+n+'</span></button>'; });
+  h+='</div><div class="card" style="padding:0;overflow:hidden">';
+  if(!list.length) h+='<div class="empty">Rien à examiner. Les agents ont fait le travail.</div>';
+  else{
+    h+='<table><thead><tr><th>Dossier</th><th>Motif</th><th>Ce que le système a vu</th><th>Documents concernés</th><th>Depuis</th></tr></thead><tbody>';
+    list.forEach(function(c){ h+='<tr class="click" data-a="oc" data-id="'+c.id+'"><td><b>'+esc(c.dossier)+'</b></td><td><span class="tag '+MOTIFS[c.motif][1]+'">'+MOTIFS[c.motif][0]+'</span></td><td>'+esc(c.desc)+'</td><td class="note">'+esc(c.docs)+'</td><td class="note">'+esc(c.since)+'</td></tr>'; });
+    h+='</tbody></table>';
+  }
+  return h+'</div><p class="note">Audit : un échantillon de lots jugés conformes revient ici pour mesurer les erreurs que personne ne voit.</p></main></div>';
+}
+function caseView(){
+  var c=S.cases.filter(function(x){return x.id===S.caseId;})[0];
+  if(!c){ S.caseId=null; return queueView(); }
+  var d=c.d, h='<div class="app">'+opsSide()+'<main class="main"><div class="crumb"><a data-a="oq">À examiner</a> / '+esc(c.dossier)+'</div>';
+  h+='<div class="row" style="margin-bottom:14px"><h1 style="margin:0">'+esc(c.dossier)+'</h1><span class="tag '+MOTIFS[c.motif][1]+'">'+MOTIFS[c.motif][0]+'</span><span class="sub">'+esc(c.sub||('Depuis '+c.since))+'</span></div>';
+  h+='<div class="strip">'+(c.key?badge(S.problems[c.key].status):badge('review'))+'<span>Le Pro voit déjà ce retour : <b>'+esc(d.pro)+'</b> Votre décision peut le confirmer ou le lever.</span></div>';
+  h+='<div class="cols" style="grid-template-columns:minmax(0,1fr) 408px"><div class="col"><h2>Documents côte à côte</h2><div class="docs">'+d.docs.map(docCard).join('')+'</div><div class="msg">'+esc(d.dossier)+'</div>';
+  h+='<div class="card"><h2 style="margin-bottom:14px">Chronologie</h2><div class="tl">'+d.tl.map(function(e){ return '<div class="ev"><i style="background:'+e[2]+'"></i><div><div class="note">'+esc(e[0])+'</div>'+esc(e[1])+'</div></div>'; }).join('')+'</div></div></div>';
+  h+='<div class="col"><div class="card"><h2 style="margin-bottom:12px">Verdicts des agents</h2>'+d.v.map(function(v,i){ return (i?'<hr class="sep">':'')+'<div style="font-weight:500">'+esc(v[0])+'</div><div class="row" style="margin:6px 0">'+badge(v[2],v[3])+'<span class="note">'+esc(v[1])+'</span></div><div class="note">'+esc(v[4])+'</div>'; }).join('')+'</div>';
+  h+='<div class="card col" style="gap:12px"><h2>Votre décision</h2>';
+  if(c.motif==='audit') h+='<button class="btn p" data-a="decide" data-id="'+c.id+'" data-d="lift">Les agents ont raison</button><button class="btn" data-a="decide" data-id="'+c.id+'" data-d="confirm">J’ai trouvé une erreur</button>';
+  else h+='<button class="btn p" data-a="decide" data-id="'+c.id+'" data-d="confirm">Confirmer le problème</button><button class="btn" data-a="decide" data-id="'+c.id+'" data-d="lift">Lever le problème</button><button class="btn" data-a="decide" data-id="'+c.id+'" data-d="ask">Demander une pièce au Pro</button><div class="msg"><b class="note">Message pré-rempli pour le Pro</b><div style="margin-top:6px">'+esc(d.msg)+'</div></div>';
+  h+='<div class="note">Votre décision est enregistrée : elle sert à mesurer la fiabilité des agents.</div></div></div></div></main></div>';
+  return h;
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  document.getElementById('seg').innerHTML='<button class="'+(S.role==='pro'?'on':'')+'" data-a="role" data-r="pro">Vue Pro</button><button class="'+(S.role==='ops'?'on':'')+'" data-a="role" data-r="ops">Vue Ops ('+S.cases.length+')</button>';
+  document.querySelector('[data-a="sim"]').style.display=S.role==='pro'?'':'none';
+  document.getElementById('app').innerHTML=S.role==='pro'?proView():(S.caseId?caseView():queueView());
+  renderToast();
+}
+
+/* ---------- Actions ---------- */
+function newCase(o){ S.nid++; o.id='n'+S.nid; o.since='à l’instant'; o.min=1; S.cases.push(o); }
+function recheck(key){
+  var p=S.problems[key]; p.status='rechecking'; p.note=''; S.drawer=null; removeCasesFor(key);
+  toast('Document reçu. Re-contrôle ciblé en cours : seuls les contrôles concernés repassent.'); render();
+  var e=epoch; setTimeout(function(){ if(e!==epoch) return; p.status='ok'; toast('Problème résolu. Le re-contrôle est conforme.'); render(); },1800);
+}
+function sendToOps(key,motif,text){
+  var p=key?S.problems[key]:null;
+  if(p){ p.status='review'; p.note=''; removeCasesFor(key); S.drawer=null; }
+  var d=p?{docs:p.seen,dossier:text,tl:[['À l’instant',motif==='ecart'?'Le Pro déclare un écart au lieu de corriger.':'Le Pro demande une revue : il pense que l’IA se trompe.',motif==='ecart'?'#3538CD':'#B54708']],v:[[p.title,'Agents de cohérence','todo','Non conforme',p.why]],pro:'en vérification par ECAIR, rien à faire.',msg:'Bonjour, merci pour votre retour. Pouvez-vous joindre une pièce qui confirme ?'}
+    :{docs:[{t:'Lot particulier',sub:'Revue demandée',read:'3 documents',bad:0}],dossier:text,tl:[['À l’instant','Le Pro demande une revue du lot.','#B54708']],v:[['Contrôles du lot','Agents de cohérence','review','Revue demandée','Le Pro demande un regard humain sur le lot.']],pro:'en vérification par ECAIR, rien à faire.',msg:'Bonjour, nous avons relu le lot. Pouvez-vous préciser ce qui vous semble faux ?'};
+  newCase({dossier:'Claire Dupont',motif:motif,key:key,desc:text,docs:p?p.concerns.join(', '):'Lot particulier',risk:p&&key==='addr'?3:2,d:d});
+  toast(motif==='ecart'?'Écart envoyé. Le statut passe à « en vérification par ECAIR » : ce n’est pas un refus.':'Revue demandée. Un Ops regarde, vous n’avez rien à faire.');
+  render();
+}
+function decide(id,kind){
+  var c=S.cases.filter(function(x){return x.id===id;})[0]; if(!c) return;
+  var side='';
+  if(c.key){
+    var p=S.problems[c.key];
+    if(kind==='lift'){ p.status='ok'; p.note=''; side=' Côté Pro : le problème est levé.'; }
+    else if(kind==='confirm'){ p.status='todo'; side=' Côté Pro : le problème passe à « à corriger ».'; if(c.key==='income'){ p.options=[{id:'upload',label:'Corriger les revenus du dossier',desc:'Mettez à jour les revenus saisis à la création, ou déposez un avis à jour.',reco:1,kind:'upload'},{id:'ecart',label:'Déclarer un écart',desc:'Expliquez la différence.',kind:'ecart'}]; p.text='Les revenus ne correspondent pas à ceux du dossier. Mettez-les à jour ou expliquez l’écart.'; } }
+    else{ p.status='todo'; p.note='ECAIR vous demande : '+c.d.msg; side=' Côté Pro : le message est envoyé.'; if(c.key==='income'){ p.options=[{id:'upload',label:'Envoyer la pièce demandée',desc:'Déposez le document demandé par ECAIR.',reco:1,kind:'upload'},{id:'ecart',label:'Répondre par écrit',desc:'Expliquez la différence.',kind:'ecart'}]; } }
+    removeCasesFor(c.key);
+  } else S.cases=S.cases.filter(function(x){return x.id!==id;});
+  S.decisions++; S.caseId=null;
+  toast('Décision enregistrée.'+side+' Elle alimente la mesure de fiabilité des agents.'); render();
+}
+function simulate(){
+  if(S.checking) return;
+  S.checking=true; toast('Nouveau dépôt reçu. Vérification du lot en arrière-plan : le Pro peut continuer à déposer.'); render();
+  var e=epoch; setTimeout(function(){
+    if(e!==epoch) return; S.checking=false;
+    var a=S.problems.addr;
+    if(a.status==='ok'){ a.status='todo'; a.note=''; newCase({dossier:'Claire Dupont',motif:'contra',key:'addr',desc:S.cases[0]?'Nouvel avis d’imposition : l’adresse diffère du justificatif de propriété déjà validé':'',docs:'Avis d’imposition, Justificatif de propriété',risk:3,d:JSON.parse(JSON.stringify(sampleAddr()))}); toast('Nouveau problème détecté : l’adresse diffère du justificatif déjà validé. Le Pro est prévenu, l’Ops est alertée.'); }
+    else toast('Vérification terminée : aucun nouveau problème.');
+    render();
+  },2600);
+}
+function sampleAddr(){ return makeState().cases[0].d; }
+function reset(){ epoch++; clearTimeout(toastTimer); var r=S?S.role:'pro'; S=makeState(); S.role=r; render(); toast('Démo réinitialisée.'); }
+
+/* ---------- Événements ---------- */
+document.addEventListener('click',function(ev){
+  var t=ev.target.closest('[data-a]'); if(!t) return;
+  var a=t.getAttribute('data-a'), k=t.getAttribute('data-k'), m=t.getAttribute('data-m');
+  if(a==='role'){ S.role=t.getAttribute('data-r'); S.drawer=null; S.caseId=null; render(); }
+  else if(a==='sim') simulate();
+  else if(a==='reset') reset();
+  else if(a==='open'){ var pr=S.problems[k]; S.drawer={key:k,mode:(pr.status==='todo'&&pr.options[0])?pr.options[0].id:null}; render(); }
+  else if(a==='act'){ S.drawer={key:k,mode:m}; render(); }
+  else if(a==='close'){ S.drawer=null; render(); }
+  else if(a==='pick'){ S.drawer.mode=S.drawer.mode===m?null:m; render(); }
+  else if(a==='upload') recheck(k);
+  else if(a==='ecart'){ var tx=(document.getElementById('ecart')||{}).value||S.ecartText; S.ecartText=''; sendToOps(k,'ecart','Écart déclaré par le Pro : « '+(tx.trim()||'sans explication')+' »'); }
+  else if(a==='review') sendToOps(k||null,'revue',k?'Le Pro pense que l’IA se trompe et demande une revue':'Le Pro demande une revue du lot');
+  else if(a==='filter'){ S.filter=t.getAttribute('data-f'); render(); }
+  else if(a==='oq'){ S.caseId=null; render(); }
+  else if(a==='oc'){ S.caseId=t.getAttribute('data-id'); render(); window.scrollTo(0,0); }
+  else if(a==='decide') decide(t.getAttribute('data-id'),t.getAttribute('data-d'));
+});
+document.addEventListener('input',function(ev){ if(ev.target&&ev.target.id==='ecart') S.ecartText=ev.target.value; });
+document.addEventListener('keydown',function(ev){ if(ev.key==='Escape'&&S&&S.drawer){ S.drawer=null; render(); } });
+
+S=makeState(); render();
+window.__ecair={state:function(){return S;}};
+})();
+</script>
+</body>
+</html>
